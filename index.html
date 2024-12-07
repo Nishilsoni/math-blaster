@@ -58,6 +58,27 @@
         background-color: rgba(255, 255, 255, 0.3);
       }
 
+      #hearts-container {
+        position: fixed;
+        top: 60px;
+        right: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        z-index: 2;
+      }
+
+      #hearts {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .heart {
+        width: 30px;
+        height: 30px;
+      }
+
       .toggle-button {
         background-color: rgba(255, 255, 255, 0.2);
         border: 2px solid #FFFFFF;
@@ -68,7 +89,7 @@
         padding: 5px 10px;
         position: fixed;
         left: 10px;
-        top: 100px;
+        top: 10px;
         z-index: 2;
         border-radius: 4px;
       }
@@ -107,6 +128,13 @@
   </head>
 
   <body>
+    <div id="hearts-container">
+      <div id="hearts">
+        <img src="heart.svg" class="heart">
+        <img src="heart.svg" class="heart">
+        <img src="heart.svg" class="heart">
+      </div>
+    </div>
     <div style="position: relative;">
    <canvas id="layer1" width="100" height="100"
      style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>
@@ -124,12 +152,6 @@
     <button class="toggle-button" id="togglePosition">Toggle Buttons Position</button>
 
     <script>
-      // Dirty hacks
-
-      document.onkeydown = function() { return false; };
-    </script>
-
-    <script>
       // Draw the stars on the backgroud
       var canvas = document.getElementById('layer1');
       var ctx = canvas.getContext('2d');
@@ -142,10 +164,10 @@
       }
 
       // Get main canvas
-      canvas = document.getElementById('layer2');
-      ctx = canvas.getContext('2d');
-      ctx.canvas.width  = window.innerWidth;
-      ctx.canvas.height = window.innerHeight;
+      var canvas2 = document.getElementById('layer2');
+      var ctx2 = canvas2.getContext('2d');
+      ctx2.canvas.width  = window.innerWidth;
+      ctx2.canvas.height = window.innerHeight;
 
       // Functions to generate mathematical operations
       function sum(length){
@@ -163,6 +185,7 @@
         damage: 0,
         score: 0,
         paused: false,
+        lives: 3,
         shakeFrame: -1, // Counter to keep track if we should shake the screen
         asteroids: [], // List with active asteroids
         answers: [], // List of possible answers for the current asteroid
@@ -172,9 +195,30 @@
       var gameConfig = {
         fps: 30,
         asteroidsMaximumSize: 700, // Size in which we consider we are hitted
-        scalingFactor: 1.015, // Effectively sets the speed of the asteroids
+        scalingFactor: 1.005, // Effectively sets the speed of the asteroids
         framesToShake: 7, // For how many frames the screen is shaked when hitted
         aimSize: 60
+      }
+
+      var highScore = localStorage.getItem('highScore') ? parseInt(localStorage.getItem('highScore')) : 0;
+
+      // Display high score on the screen
+      function displayHighScore() {
+          var ctx1 = document.getElementById('layer1').getContext('2d');
+          ctx1.clearRect(0, 0, canvas.width, 50); // Clear the area for high score
+          ctx1.fillStyle = "#EEEEEE";
+          ctx1.font = "20px Source Sans Pro";
+          ctx1.textAlign = "right";
+          ctx1.fillText("Highest Score: " + highScore, canvas.width - 10, 50); // Adjusted Y position for high score
+      }
+
+      // Function to display current score
+      function displayCurrentScore() {
+          var ctx1 = document.getElementById('layer1').getContext('2d');
+          ctx1.fillStyle = "#EEEEEE";
+          ctx1.font = "20px Source Sans Pro";
+          ctx1.textAlign = "right";
+          ctx1.fillText("Score: " + gameState.score, canvas.width - 10, 30); // Adjusted Y position for current score
       }
 
       // Do things when key is pressed
@@ -231,7 +275,7 @@
 
         this.draw = function() {
           // Draw asteroid
-          ctx.drawImage(this.image, this.x, this.y, this.size, this.size);
+          ctx2.drawImage(this.image, this.x, this.y, this.size, this.size);
         },
 
         this.update = function() {
@@ -244,6 +288,9 @@
             if(this.image == imageAsteroid){
               gameState.damage += 1
               gameState.shakeFrame = gameConfig.framesToShake;
+
+              // Remove a live
+              gameState.lives -= 1;
             }
           }
         },
@@ -265,14 +312,14 @@
       // Functions to shake screen when hit
       function preShake() {
         gameState.shakeFrame -= 1;
-        ctx.save();
+        ctx2.save();
         var dx = Math.random()*20;
         var dy = Math.random()*20;
-        ctx.translate(dx, dy);
+        ctx2.translate(dx, dy);
       }
 
       function postShake() {
-        ctx.restore();
+        ctx2.restore();
       }
 
       // Function to draw an aim on the closest asteroid
@@ -297,30 +344,30 @@
           aimX = aimX + (newAimX - aimX)/2;
           aimY = aimY + (newAimY - aimY)/2;
 
-          ctx.beginPath();
+          ctx2.beginPath();
 
           // Draw aim circle
-          ctx.arc(aimX, aimY, gameConfig.aimSize, 0, 2 * Math.PI, false);
+          ctx2.arc(aimX, aimY, gameConfig.aimSize, 0, 2 * Math.PI, false);
           // Fill aim interior
-          ctx.fillStyle = 'rgba(0,100,0,0.25)';
-          ctx.fill();
+          ctx2.fillStyle = 'rgba(0,100,0,0.25)';
+          ctx2.fill();
           // Draw aim ticks
-          ctx.lineWidth = 5;
-          ctx.moveTo(aimX - 60, aimY);
-          ctx.lineTo(aimX - 45, aimY);
-          ctx.moveTo(aimX + 60, aimY);
-          ctx.lineTo(aimX + 45, aimY);
-          ctx.moveTo(aimX, aimY - 60);
-          ctx.lineTo(aimX, aimY - 45);
-          ctx.moveTo(aimX, aimY + 60);
-          ctx.lineTo(aimX, aimY + 45);
-          ctx.strokeStyle = 'green';
-          ctx.stroke();
+          ctx2.lineWidth = 5;
+          ctx2.moveTo(aimX - 60, aimY);
+          ctx2.lineTo(aimX - 45, aimY);
+          ctx2.moveTo(aimX + 60, aimY);
+          ctx2.lineTo(aimX + 45, aimY);
+          ctx2.moveTo(aimX, aimY - 60);
+          ctx2.lineTo(aimX, aimY - 45);
+          ctx2.moveTo(aimX, aimY + 60);
+          ctx2.lineTo(aimX, aimY + 45);
+          ctx2.strokeStyle = 'green';
+          ctx2.stroke();
           // Draw operation
-          ctx.font = "bold " + gameConfig.aimSize/2 + "px Courier";
-          ctx.fillStyle = "DarkGreen";
-          ctx.fillText(closestAsteroid.line1, aimX - 30, aimY);
-          ctx.fillText(closestAsteroid.line2, aimX - 30, aimY + 25);
+          ctx2.font = "bold " + gameConfig.aimSize/2 + "px Courier";
+          ctx2.fillStyle = "DarkGreen";
+          ctx2.fillText(closestAsteroid.line1, aimX - 30, aimY);
+          ctx2.fillText(closestAsteroid.line2, aimX - 30, aimY + 25);
         }
       }
 
@@ -354,14 +401,32 @@
 
       // Update all objects
       function update() {
-        if(!gameState.paused){
+        if (!gameState.paused) {
+          // Remove hearts to match lives
+          while (document.getElementById('hearts').children.length > gameState.lives) {
+            document.getElementById('hearts').children[0].remove();
+          }
+
+          // Check if there are remaining lives
+          if (gameState.lives <= 0) {
+            preShake();
+            gameState.paused = true;
+            alert('Game over! Your score was: ' + gameState.score);
+
+            // Check if current score is higher than high score
+            if (gameState.score > highScore) {
+              highScore = gameState.score;
+              localStorage.setItem('highScore', highScore);
+            }
+          }
+
           // Update asteroids
-          for(var i = 0; i < gameState.asteroids.length; i++){
+          for (var i = 0; i < gameState.asteroids.length; i++) {
             gameState.asteroids[i].update();
           }
 
           // Create new asteroids if needed (up to 3)
-          if(gameState.asteroids.length < 3){
+          if (gameState.asteroids.length < 3) {
             // Only use the top half of the screen and avoid the rightmost quarter
             var asteroid = new Asteroid(
               Math.random() * (ctx.canvas.width * 0.75), // Only use 75% of the width
@@ -371,49 +436,48 @@
             gameState.asteroids.push(asteroid);
           }
         }
+        displayHighScore(); // Call to display high score
+        displayCurrentScore(); // Call to display current score
       };
 
       // Draw moving objects
       function draw() {
-        if(gameState.shakeFrame >= 0){
+
+        // Clear only the game canvas (layer2), keeping the stars background intact
+        ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+
+        // Apply shake effect if active
+        if (gameState.shakeFrame >= 0) {
           preShake();
         }
 
-        // Clear screen
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
         // Draw asteroids in reverse order (newer ones behind)
-        for(var i = gameState.asteroids.length - 1; i >= 0; i--){
+        for (var i = gameState.asteroids.length - 1; i >= 0; i--) {
           gameState.asteroids[i].draw();
         }
 
         // Draw aim
         drawAim();
 
-        // Draw score
-        ctx.fillStyle = "#EEEEEE";
-        ctx.font = "24px Source Sans Pro";
-        ctx.textAlign = "left";
-        ctx.fillText("Score: " + gameState.score, 10, 30);
-
-        if(gameState.shakeFrame >= 0){
+        // Reset shake effect if active
+        if (gameState.shakeFrame >= 0) {
           postShake();
         }
       }
 
       // Main loop
-      window.onload = function(){
+      window.onload = function() {
         // Play music!
         var music = new Audio('soundtrack.ogg');
         music.loop = true;
         music.play();
 
         setInterval(function() {
-          if(!gameState.paused){
+          if (!gameState.paused) {
             update();
             draw();
           }
-        }, 1000/gameConfig.fps);
+        }, 1000 / gameConfig.fps);
       }
     </script>
   </body>
