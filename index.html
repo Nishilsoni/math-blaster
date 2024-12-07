@@ -172,7 +172,7 @@
       var gameConfig = {
         fps: 30,
         asteroidsMaximumSize: 700, // Size in which we consider we are hitted
-        scalingFactor: 1.025, // Effectively sets the speed of the asteroids
+        scalingFactor: 1.015, // Effectively sets the speed of the asteroids
         framesToShake: 7, // For how many frames the screen is shaked when hitted
         aimSize: 60
       }
@@ -204,29 +204,20 @@
         this.text = mul([2], 1);
         this.number = eval(this.text);
 
-        // Generate multiple choice answers
-        this.generateAnswers = function() {
-          let answers = [this.number];
-          while (answers.length < 4) {
-            // Generate wrong answers close to the correct one
-            let wrongAnswer = this.number + Math.floor(Math.random() * 10) - 5;
-            if (wrongAnswer !== this.number && !answers.includes(wrongAnswer) && wrongAnswer > 0) {
-              answers.push(wrongAnswer);
-            }
+        // Generate answers once when asteroid is created
+        this.answers = [this.number];
+        while (this.answers.length < 4) {
+          // Generate wrong answers close to the correct one
+          let wrongAnswer = this.number + Math.floor(Math.random() * 10) - 5;
+          if (wrongAnswer !== this.number && !this.answers.includes(wrongAnswer) && wrongAnswer > 0) {
+            this.answers.push(wrongAnswer);
           }
-          // Shuffle answers
-          for (let i = answers.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [answers[i], answers[j]] = [answers[j], answers[i]];
-          }
-          gameState.answers = answers;
-          
-          // Update answer buttons
-          const buttons = document.querySelectorAll('.answer-button');
-          buttons.forEach((button, index) => {
-            button.textContent = answers[index];
-          });
-        };
+        }
+        // Shuffle answers
+        for (let i = this.answers.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [this.answers[i], this.answers[j]] = [this.answers[j], this.answers[i]];
+        }
 
         // Get lines to display
         var n = this.text.split(" * ");
@@ -289,7 +280,14 @@
       var aimY = newAimY = ctx.canvas.height/2;
       var closestAsteroid;
       function drawAim(){
-          closestAsteroid = gameState.asteroids.slice(-1)[0];
+        if (gameState.asteroids.length > 0) {
+          closestAsteroid = gameState.asteroids[0]; // Target the oldest asteroid
+
+          // Update answer buttons for the targeted asteroid
+          const buttons = document.querySelectorAll('.answer-button');
+          buttons.forEach((button, index) => {
+            button.textContent = closestAsteroid.answers[index];
+          });
 
           // Find center of closest asteroid
           newAimX = closestAsteroid.x + closestAsteroid.size/2;
@@ -323,19 +321,18 @@
           ctx.fillStyle = "DarkGreen";
           ctx.fillText(closestAsteroid.line1, aimX - 30, aimY);
           ctx.fillText(closestAsteroid.line2, aimX - 30, aimY + 25);
+        }
       }
 
       // Handle answer button clicks
       document.querySelectorAll('.answer-button').forEach(button => {
         button.addEventListener('click', function() {
-          if (!gameState.paused) {
+          if (!gameState.paused && gameState.asteroids.length > 0) {
             const selectedAnswer = parseInt(this.textContent);
-            // Reverse to get bigger asteroids first
-            for (var i = gameState.asteroids.length - 1; i >= 0; i--) {
-              if (gameState.asteroids[i].number === selectedAnswer) {
-                gameState.asteroids[i].hit();
-                break;
-              }
+            const targetAsteroid = gameState.asteroids[0]; // Get the oldest asteroid
+            
+            if (targetAsteroid.number === selectedAnswer) {
+              targetAsteroid.hit();
             }
           }
         });
@@ -363,8 +360,8 @@
             gameState.asteroids[i].update();
           }
 
-          // Create new asteroid if there is none
-          if(gameState.asteroids.length == 0){
+          // Create new asteroids if needed (up to 3)
+          if(gameState.asteroids.length < 3){
             // Only use the top half of the screen and avoid the rightmost quarter
             var asteroid = new Asteroid(
               Math.random() * (ctx.canvas.width * 0.75), // Only use 75% of the width
@@ -372,34 +369,36 @@
               50
             );
             gameState.asteroids.push(asteroid);
-            asteroid.generateAnswers(); // Generate answers for the new asteroid
           }
         }
       };
 
       // Draw moving objects
       function draw() {
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-        ctx.font = "bold 24px Arial";
-        ctx.fillStyle = "purple";
-        ctx.fillText("Damage: " + gameState.damage, 30, 30);
-        ctx.fillStyle = "blue";
-        ctx.fillText("Score: " + gameState.score, 30, 60);
-
-        // Shake screen if recently hit
-        if(gameState.shakeFrame > 0){
+        if(gameState.shakeFrame >= 0){
           preShake();
-          gameState.asteroids.forEach(function(asteroid) {
-            asteroid.draw();
-          });
-          postShake();
-        } else {
-          gameState.asteroids.forEach(function(asteroid) {
-            asteroid.draw();
-          });
-        };
+        }
+
+        // Clear screen
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw asteroids in reverse order (newer ones behind)
+        for(var i = gameState.asteroids.length - 1; i >= 0; i--){
+          gameState.asteroids[i].draw();
+        }
+
+        // Draw aim
         drawAim();
+
+        // Draw score
+        ctx.fillStyle = "#EEEEEE";
+        ctx.font = "24px Source Sans Pro";
+        ctx.textAlign = "left";
+        ctx.fillText("Score: " + gameState.score, 10, 30);
+
+        if(gameState.shakeFrame >= 0){
+          postShake();
+        }
       }
 
       // Main loop
