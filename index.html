@@ -15,6 +15,62 @@
           font-size: 24px;
           background-color: #000000;
         }
+
+      .answers-container {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        z-index: 2;
+        transition: all 0.3s ease;
+      }
+
+      .answers-bottom {
+        bottom: 20px;
+      }
+
+      .answers-center {
+        top: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .answer-button {
+        background-color: rgba(255, 255, 255, 0.2);
+        border: 2px solid #FFFFFF;
+        color: #FFFFFF;
+        padding: 15px 30px;
+        font-size: 24px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        border-radius: 8px;
+        min-width: 120px;
+      }
+
+      .answer-button:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+      }
+
+      .toggle-button {
+        background-color: rgba(255, 255, 255, 0.2);
+        border: 2px solid #FFFFFF;
+        color: #FFFFFF;
+        cursor: pointer;
+        font-family: 'Source Sans Pro', 'Arial';
+        font-size: 16px;
+        padding: 5px 10px;
+        position: fixed;
+        left: 10px;
+        top: 100px;
+        z-index: 2;
+        border-radius: 4px;
+      }
+
+      .toggle-button:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+      }
+
       canvas { /* Just to get rid of selected text when click */
         -webkit-touch-callout: none;
         -webkit-user-select: none;
@@ -36,17 +92,19 @@
      style="position: absolute; left: 0; top: 0; z-index: 1; opacity:1.0"></canvas>
   </div>
 
+    <div class="answers-container answers-bottom" id="answersContainer">
+      <button class="answer-button" data-index="0"></button>
+      <button class="answer-button" data-index="1"></button>
+      <button class="answer-button" data-index="2"></button>
+      <button class="answer-button" data-index="3"></button>
+    </div>
+
+    <button class="toggle-button" id="togglePosition">Toggle Buttons Position</button>
+
     <script>
       // Dirty hacks
 
-      // Prevent browser to using backspace
-      function preventBackspaceHandler(evt) {
-          evt = evt || window.event;
-          if (evt.keyCode == 8) {
-              return false;
-          }
-      }
-      document.onkeydown = preventBackspaceHandler;
+      document.onkeydown = function() { return false; };
     </script>
 
     <script>
@@ -82,49 +140,23 @@
       var gameState = {
         damage: 0,
         score: 0,
-        input: "", // User text input: the answer to the calculations
         paused: false,
         shakeFrame: -1, // Counter to keep track if we should shake the screen
-        asteroids: [] // List with active asteroids
+        asteroids: [], // List with active asteroids
+        answers: [], // List of possible answers for the current asteroid
+        buttonsInCenter: false // Track button position
       };
 
       var gameConfig = {
         fps: 30,
         asteroidsMaximumSize: 700, // Size in which we consider we are hitted
-        scalingFactor: 1.015, // Effectively sets the speed of the asteroids
+        scalingFactor: 1.025, // Effectively sets the speed of the asteroids
         framesToShake: 7, // For how many frames the screen is shaked when hitted
         aimSize: 60
       }
 
       // Do things when key is pressed
       function doKeyDown(e) {
-
-        if(!gameState.paused){
-          //  backspace
-          if ( e.keyCode == 8 ) {
-            gameState.input = gameState.input.substring(0, gameState.input.length - 1);
-          };
-          // Handle numbers
-          if ( e.keyCode <= 57 && e.keyCode >= 48) {
-            gameState.input += e.keyCode - 48;
-          };
-          // Handle numpad numbers
-          if ( e.keyCode <= 105 && e.keyCode >= 96) {
-            gameState.input += e.keyCode - 96;
-          };
-          //handle enter
-          if ( e.keyCode == 13 ) {
-            // Reverse to get bigger asteroids first
-            for(var i = gameState.asteroids.length - 1; i >= 0; i--){
-              if(gameState.asteroids[i].number == parseInt(gameState.input)){
-                gameState.asteroids[i].hit();
-                break;
-              }
-            };
-            gameState.input = "";
-          };
-        };
-
         //handle esc
         if ( e.keyCode == 27 ) {
           if(gameState.paused){
@@ -149,6 +181,30 @@
         // Operation to perform
         this.text = mul([2], 1);
         this.number = eval(this.text);
+
+        // Generate multiple choice answers
+        this.generateAnswers = function() {
+          let answers = [this.number];
+          while (answers.length < 4) {
+            // Generate wrong answers close to the correct one
+            let wrongAnswer = this.number + Math.floor(Math.random() * 10) - 5;
+            if (wrongAnswer !== this.number && !answers.includes(wrongAnswer) && wrongAnswer > 0) {
+              answers.push(wrongAnswer);
+            }
+          }
+          // Shuffle answers
+          for (let i = answers.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [answers[i], answers[j]] = [answers[j], answers[i]];
+          }
+          gameState.answers = answers;
+          
+          // Update answer buttons
+          const buttons = document.querySelectorAll('.answer-button');
+          buttons.forEach((button, index) => {
+            button.textContent = answers[index];
+          });
+        };
 
         // Get lines to display
         var n = this.text.split(" * ");
@@ -247,19 +303,56 @@
           ctx.fillText(closestAsteroid.line2, aimX - 30, aimY + 25);
       }
 
+      // Handle answer button clicks
+      document.querySelectorAll('.answer-button').forEach(button => {
+        button.addEventListener('click', function() {
+          if (!gameState.paused) {
+            const selectedAnswer = parseInt(this.textContent);
+            // Reverse to get bigger asteroids first
+            for (var i = gameState.asteroids.length - 1; i >= 0; i--) {
+              if (gameState.asteroids[i].number === selectedAnswer) {
+                gameState.asteroids[i].hit();
+                break;
+              }
+            }
+          }
+        });
+      });
+
+      // Handle toggle button position
+      document.getElementById('togglePosition').addEventListener('click', function() {
+        const container = document.getElementById('answersContainer');
+        gameState.buttonsInCenter = !gameState.buttonsInCenter;
+        
+        if (gameState.buttonsInCenter) {
+          container.classList.remove('answers-bottom');
+          container.classList.add('answers-center');
+        } else {
+          container.classList.remove('answers-center');
+          container.classList.add('answers-bottom');
+        }
+      });
+
       // Update all objects
       function update() {
-        gameState.asteroids.forEach(function(asteroid) {
-          asteroid.update();
-        });
+        if(!gameState.paused){
+          // Update asteroids
+          for(var i = 0; i < gameState.asteroids.length; i++){
+            gameState.asteroids[i].update();
+          }
 
-        // Add more asteroids if needed
-        if(gameState.asteroids.length < 3){
-          gameState.asteroids.push(new Asteroid(200 + Math.random()*(ctx.canvas.width - 400), 200 + Math.random()*(ctx.canvas.height - 400), 10));
-        };
-
-        // Put greater asteroids in front
-        gameState.asteroids.sort(compareAsteroidSizes);
+          // Create new asteroid if there is none
+          if(gameState.asteroids.length == 0){
+            // Only use the top half of the screen and avoid the rightmost quarter
+            var asteroid = new Asteroid(
+              Math.random() * (ctx.canvas.width * 0.75), // Only use 75% of the width
+              Math.random() * (ctx.canvas.height * 0.4), // Using 0.4 to give some extra space from the middle
+              50
+            );
+            gameState.asteroids.push(asteroid);
+            asteroid.generateAnswers(); // Generate answers for the new asteroid
+          }
+        }
       };
 
       // Draw moving objects
@@ -271,8 +364,6 @@
         ctx.fillText("Damage: " + gameState.damage, 30, 30);
         ctx.fillStyle = "blue";
         ctx.fillText("Score: " + gameState.score, 30, 60);
-        ctx.fillStyle = "green";
-        ctx.fillText("Input: " + gameState.input, 30, 120);
 
         // Shake screen if recently hit
         if(gameState.shakeFrame > 0){
