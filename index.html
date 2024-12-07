@@ -423,28 +423,37 @@
         }
       });
 
+      // Handle click after game over to reload the game
+      document.getElementById('layer2').addEventListener('click', function() {
+          if (gameState.drawGameOver) {
+              location.reload(); // Reload the page to start a new game
+          }
+      });
+
       // Update all objects
       function update() {
-        // Make game harder after each update
+        // Increment scaling factor
         gameConfig.scalingFactor += 0.00001;
 
-        if (!gameState.paused) {
-          // Remove hearts to match lives
-          while (document.getElementById('hearts').children.length > gameState.lives) {
-            document.getElementById('hearts').children[0].remove();
-          }
+        // Remove hearts to match lives
+        while (document.getElementById('hearts').children.length > gameState.lives) {
+          document.getElementById('hearts').children[0].remove();
+        }
 
+        if (!gameState.paused) {
           // Check if there are remaining lives
           if (gameState.lives <= 0) {
+            // Last screen shake
             preShake();
-            gameState.paused = true;
-            alert('Game over! Your score was: ' + gameState.score);
 
             // Check if current score is higher than high score
             if (gameState.score > highScore) {
               highScore = gameState.score;
               localStorage.setItem('highScore', highScore);
             }
+           
+            gameState.drawGameOver = true;
+            gameState.paused = true; // Pause the game
           }
 
           // Update asteroids
@@ -466,6 +475,20 @@
         displayHighScore(); // Call to display high score
         displayCurrentScore(); // Call to display current score
       };
+
+      // Draw game over screen
+      function drawGameOver() {
+        // Game over - draw "Game Over" on canvas
+        var ctx = document.getElementById('layer2').getContext('2d');
+        ctx.fillStyle = "red"; // Set text color
+        ctx.font = "48px Source Sans Pro"; // Set font size and family
+        ctx.textAlign = "center"; // Center the text
+        ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2); // Draw text in the center
+
+        // Also display the score here
+        ctx.font = "24px Source Sans Pro"; // Change font size for score
+        ctx.fillText("Your score was: " + gameState.score, canvas.width / 2, canvas.height / 2 + 50); // Draw score below the game over message
+      }
 
       // Draw moving objects
       function draw() {
@@ -503,6 +526,8 @@
           if (!gameState.paused) {
             update();
             draw();
+          } else if (gameState.drawGameOver) {
+            drawGameOver();
           }
         }, 1000 / gameConfig.fps);
       }
