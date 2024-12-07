@@ -349,7 +349,13 @@
           // Draw aim circle
           ctx2.arc(aimX, aimY, gameConfig.aimSize, 0, 2 * Math.PI, false);
           // Fill aim interior
-          ctx2.fillStyle = 'rgba(0,100,0,0.25)';
+          if(gameState.aimJammed) {
+            // Red
+            ctx2.fillStyle = 'rgba(200,0,0,0.25)';
+          } else {
+            // Green
+            ctx2.fillStyle = 'rgba(0,100,0,0.25)';
+          }
           ctx2.fill();
           // Draw aim ticks
           ctx2.lineWidth = 5;
@@ -361,11 +367,23 @@
           ctx2.lineTo(aimX, aimY - 45);
           ctx2.moveTo(aimX, aimY + 60);
           ctx2.lineTo(aimX, aimY + 45);
-          ctx2.strokeStyle = 'green';
+          if(gameState.aimJammed) {
+            // Red
+            ctx2.strokeStyle = 'red';
+          } else {
+            // Green
+            ctx2.strokeStyle = 'green';
+          }
           ctx2.stroke();
           // Draw operation
           ctx2.font = "bold " + gameConfig.aimSize/2 + "px Courier";
-          ctx2.fillStyle = "DarkGreen";
+          if(gameState.aimJammed) {
+            // Red
+            ctx2.fillStyle = 'DarkRed';
+          } else {
+            // Green
+            ctx2.fillStyle = 'DarkGreen';
+          }
           ctx2.fillText(closestAsteroid.line1, aimX - 30, aimY);
           ctx2.fillText(closestAsteroid.line2, aimX - 30, aimY + 25);
         }
@@ -378,8 +396,14 @@
             const selectedAnswer = parseInt(this.textContent);
             const targetAsteroid = gameState.asteroids[0]; // Get the oldest asteroid
             
-            if (targetAsteroid.number === selectedAnswer) {
-              targetAsteroid.hit();
+            if (targetAsteroid.number === selectedAnswer && !gameState.aimJammed) {
+              targetAsteroid.hit(); 
+            } else {
+              // Jam aim for 1 second
+              gameState.aimJammed = true;
+              setTimeout(() => {
+                gameState.aimJammed = false;
+              }, 1000);
             }
           }
         });
