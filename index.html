@@ -401,6 +401,8 @@
 
       // Update all objects
       function update() {
+        gameConfig.scalingFactor += 0.000001;
+
         if (!gameState.paused) {
           // Remove hearts to match lives
           while (document.getElementById('hearts').children.length > gameState.lives) {
