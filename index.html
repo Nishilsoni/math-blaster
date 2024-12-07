@@ -425,7 +425,8 @@
 
       // Update all objects
       function update() {
-        gameConfig.scalingFactor += 0.000001;
+        // Make game harder after each update
+        gameConfig.scalingFactor += 0.00001;
 
         if (!gameState.paused) {
           // Remove hearts to match lives
