@@ -26,6 +26,11 @@ const ScoreContainer = styled(motion.div)`
     top: 15px;
     left: 15px;
   }
+  
+  @media (max-width: 480px) {
+    top: 10px;
+    left: 10px;
+  }
 `;
 
 const ScoreCard = styled.div`
@@ -61,6 +66,12 @@ const LivesContainer = styled(motion.div)`
     top: 15px;
     right: 15px;
     gap: 4px;
+  }
+  
+  @media (max-width: 480px) {
+    top: 10px;
+    right: 10px;
+    gap: 3px;
   }
 `;
 
@@ -99,6 +110,12 @@ const SpeedIndicator = styled.div`
     padding: 6px 12px;
     font-size: 10px;
   }
+  
+  @media (max-width: 480px) {
+    top: 10px;
+    padding: 4px 8px;
+    font-size: 9px;
+  }
 `;
 
 const GameArea = styled.div`
@@ -126,6 +143,10 @@ const TopBar = styled.div`
 `;
 
 const BottomBar = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -137,6 +158,11 @@ const BottomBar = styled.div`
     padding: 15px;
     gap: 15px;
   }
+  
+  @media (max-width: 480px) {
+    padding: 10px;
+    gap: 10px;
+  }
 `;
 
 const ControlsContainer = styled(motion.div)`
@@ -146,6 +172,10 @@ const ControlsContainer = styled(motion.div)`
   
   @media (max-width: 768px) {
     gap: 12px;
+  }
+  
+  @media (max-width: 480px) {
+    gap: 8px;
   }
 `;
 
@@ -179,6 +209,12 @@ const ControlButton = styled(motion.button)`
     font-size: 12px;
     gap: 6px;
   }
+  
+  @media (max-width: 480px) {
+    padding: 6px 10px;
+    font-size: 11px;
+    gap: 4px;
+  }
 `;
 
 const AnswerButtonsContainer = styled(motion.div)`
@@ -191,7 +227,8 @@ const AnswerButtonsContainer = styled(motion.div)`
   }
   
   @media (max-width: 480px) {
-    max-width: 350px;
+    max-width: 100%;
+    padding: 0 10px;
   }
 `;
 
@@ -206,7 +243,7 @@ const AnswerGrid = styled.div`
   }
   
   @media (max-width: 480px) {
-    gap: 8px;
+    gap: 6px;
   }
 `;
 
@@ -247,9 +284,9 @@ const AnswerButton = styled(motion.button)`
   }
   
   @media (max-width: 480px) {
-    padding: 12px;
-    font-size: 18px;
-    min-height: 60px;
+    padding: 10px;
+    font-size: 16px;
+    min-height: 50px;
   }
 `;
 
@@ -305,6 +342,10 @@ const GameOverTitle = styled.h1`
   @media (max-width: 768px) {
     font-size: 36px;
   }
+  
+  @media (max-width: 480px) {
+    font-size: 28px;
+  }
 `;
 
 const GameOverScore = styled.p`
@@ -315,6 +356,10 @@ const GameOverScore = styled.p`
   
   @media (max-width: 768px) {
     font-size: 20px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 18px;
   }
 `;
 
@@ -336,6 +381,11 @@ const RestartButton = styled(motion.button)`
   @media (max-width: 768px) {
     padding: 14px 28px;
     font-size: 16px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 12px 24px;
+    font-size: 14px;
   }
 `;
 
@@ -370,6 +420,13 @@ const SettingsIcon = styled(motion.button)`
     right: 120px;
     width: 40px;
     height: 40px;
+  }
+  
+  @media (max-width: 480px) {
+    top: 10px;
+    right: 100px;
+    width: 36px;
+    height: 36px;
   }
 `;
 
