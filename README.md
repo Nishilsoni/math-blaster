@@ -1,10 +1,10 @@
 # Math Blaster - Modern Educational Math Game
 
-A stunning, modern React-based math game designed to help players improve their multiplication skills through interactive gameplay with beautiful animations and sleek UI.
+A stunning, modern React-based math game designed to help players improve their math skills through interactive gameplay with beautiful animations and sleek UI.
 
 ## ✨ Features
 
-- **🎮 Interactive Math Challenges**: Solve multiplication problems to destroy asteroids
+- **🎮 Interactive Math Challenges**: Solve math problems to destroy asteroids
 - **🚀 Dynamic Difficulty**: Game speed increases as you progress
 - **🎯 Visual Feedback**: Advanced aim system with color-coded targeting
 - **🏆 Score Tracking**: High score system with local storage persistence
@@ -18,7 +18,7 @@ A stunning, modern React-based math game designed to help players improve their 
 ## 🎮 How to Play
 
 1. **🎯 Target Asteroids**: The game automatically targets the closest asteroid
-2. **🧮 Solve Math Problems**: Each asteroid displays a multiplication problem
+2. **🧮 Solve Math Problems**: Each asteroid displays a math problem
 3. **✅ Choose Correct Answer**: Click the button with the correct answer
 4. **💥 Avoid Collisions**: Solve problems before asteroids reach maximum size
 5. **📊 Track Progress**: Monitor your score and lives remaining

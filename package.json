@@ -1,7 +1,7 @@
 {
-  "name": "math-wars-modern",
+  "name": "math-blaster",
   "version": "1.0.0",
-  "description": "A modern React-based math game with beautiful UI",
+  "description": "A modern React-based math game - Math Blaster with beautiful UI",
   "main": "index.js",
   "scripts": {
     "start": "react-scripts start",
