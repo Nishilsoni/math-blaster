@@ -143,7 +143,7 @@ const TopBar = styled.div`
 `;
 
 const BottomBar = styled.div`
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
@@ -153,6 +153,8 @@ const BottomBar = styled.div`
   gap: 20px;
   padding: 20px;
   pointer-events: auto;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4));
+  backdrop-filter: blur(10px);
   
   @media (max-width: 768px) {
     padding: 15px;
@@ -160,8 +162,15 @@ const BottomBar = styled.div`
   }
   
   @media (max-width: 480px) {
-    padding: 10px;
-    gap: 10px;
+    padding: 8px;
+    gap: 8px;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
+  
+  @media (max-width: 360px) {
+    padding: 5px;
+    gap: 5px;
+    padding-bottom: max(5px, env(safe-area-inset-bottom));
   }
 `;
 
@@ -169,13 +178,16 @@ const ControlsContainer = styled(motion.div)`
   display: flex;
   gap: 16px;
   pointer-events: auto;
+  margin-top: 5px;
   
   @media (max-width: 768px) {
     gap: 12px;
+    margin-top: 3px;
   }
   
   @media (max-width: 480px) {
-    gap: 8px;
+    gap: 6px;
+    margin-top: 2px;
   }
 `;
 
@@ -211,9 +223,9 @@ const ControlButton = styled(motion.button)`
   }
   
   @media (max-width: 480px) {
-    padding: 6px 10px;
-    font-size: 11px;
-    gap: 4px;
+    padding: 4px 8px;
+    font-size: 10px;
+    gap: 3px;
   }
 `;
 
@@ -228,7 +240,7 @@ const AnswerButtonsContainer = styled(motion.div)`
   
   @media (max-width: 480px) {
     max-width: 100%;
-    padding: 0 10px;
+    padding: 0 5px;
   }
 `;
 
@@ -243,7 +255,11 @@ const AnswerGrid = styled.div`
   }
   
   @media (max-width: 480px) {
-    gap: 6px;
+    gap: 4px;
+  }
+  
+  @media (max-width: 360px) {
+    gap: 2px;
   }
 `;
 
@@ -284,9 +300,15 @@ const AnswerButton = styled(motion.button)`
   }
   
   @media (max-width: 480px) {
-    padding: 10px;
-    font-size: 16px;
-    min-height: 50px;
+    padding: 6px;
+    font-size: 12px;
+    min-height: 35px;
+  }
+  
+  @media (max-width: 360px) {
+    padding: 4px;
+    font-size: 11px;
+    min-height: 30px;
   }
 `;
 
