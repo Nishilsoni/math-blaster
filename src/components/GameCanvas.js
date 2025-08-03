@@ -102,6 +102,11 @@ const GameCanvasComponent = forwardRef(({
       <GameCanvas 
         ref={gameCanvasRef}
         onClick={onCanvasClick}
+        onTouchStart={(e) => {
+          e.preventDefault();
+          if (onCanvasClick) onCanvasClick();
+        }}
+        style={{ touchAction: 'none' }}
       />
       {children}
     </CanvasContainer>

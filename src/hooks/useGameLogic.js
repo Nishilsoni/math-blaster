@@ -185,27 +185,31 @@ const useGameLogic = (operation = 'multiplication') => {
     }
      }, [gameState.paused, gameState.asteroids, gameState.aimJammed, playSoundEffect]);
 
-  // Touch event handling for mobile
+  // Touch event handling for mobile - only prevent zooming on canvas
   useEffect(() => {
-    const handleTouchStart = (e) => {
-      // Prevent default touch behavior to avoid zooming
-      e.preventDefault();
+    const handleCanvasTouch = (e) => {
+      // Only prevent default on canvas to avoid zooming during gameplay
+      if (e.target.tagName === 'CANVAS') {
+        e.preventDefault();
+      }
     };
 
-    const handleTouchMove = (e) => {
-      // Prevent default touch behavior
-      e.preventDefault();
-    };
-
-    // Add touch event listeners to prevent zooming and scrolling
-    document.addEventListener('touchstart', handleTouchStart, { passive: false });
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    // Add touch event listeners only to canvas
+    const canvas = canvasRef.current;
+    if (canvas) {
+      canvas.addEventListener('touchstart', handleCanvasTouch, { passive: false });
+      canvas.addEventListener('touchmove', handleCanvasTouch, { passive: false });
+    }
 
     return () => {
-      document.removeEventListener('touchstart', handleTouchStart);
-      document.removeEventListener('touchmove', handleTouchMove);
+      if (canvas) {
+        canvas.removeEventListener('touchstart', handleCanvasTouch);
+        canvas.removeEventListener('touchmove', handleCanvasTouch);
+      }
     };
-  }, []);
+  }, [canvasRef.current]);
+
+
 
   // Generate mathematical operations based on selected operation
   const generateMathProblem = useCallback(() => {
@@ -522,6 +526,13 @@ const useGameLogic = (operation = 'multiplication') => {
     gameConfig.current.scalingFactor = gameConfig.current.baseSpeed;
   }, []);
 
+  // Handle canvas click/touch for game over restart
+  const handleCanvasClick = useCallback(() => {
+    if (gameState.drawGameOver) {
+      handleRestart();
+    }
+  }, [gameState.drawGameOver, handleRestart]);
+
   // Handle settings
   const toggleSettings = useCallback(() => {
     setSettings(prev => ({ ...prev, showSettings: !prev.showSettings }));
@@ -560,6 +571,7 @@ const useGameLogic = (operation = 'multiplication') => {
     canvasRef,
     handleAnswerClick,
     handleRestart,
+    handleCanvasClick,
     toggleSettings,
     togglePause,
     toggleSound,

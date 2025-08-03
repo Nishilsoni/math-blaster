@@ -226,6 +226,8 @@ const AnswerButton = styled(motion.button)`
   justify-content: center;
   transition: all 0.2s ease;
   position: relative;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   
   &:hover {
     background: rgba(99, 102, 241, 0.2);
@@ -354,6 +356,8 @@ const SettingsIcon = styled(motion.button)`
   cursor: pointer;
   transition: all 0.2s ease;
   pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   
   &:hover {
     background: rgba(0, 0, 0, 0.8);
@@ -423,6 +427,8 @@ const SettingsButton = styled(motion.button)`
   width: 100%;
   margin-bottom: 16px;
   transition: all 0.2s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   
   &:hover {
     background: rgba(99, 102, 241, 0.2);

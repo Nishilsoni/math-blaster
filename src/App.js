@@ -73,6 +73,8 @@ const StartButton = styled(motion.button)`
   font-size: 20px;
   cursor: pointer;
   box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   
   &:hover {
     transform: translateY(-4px);
@@ -129,6 +131,8 @@ const SoundToggleButton = styled(motion.button)`
   cursor: pointer;
   transition: all 0.2s ease;
   z-index: 101;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   
   &:hover {
     background: rgba(0, 0, 0, 0.8);
@@ -217,6 +221,7 @@ const App = () => {
     canvasRef,
     handleAnswerClick,
     handleRestart,
+    handleCanvasClick,
     toggleSettings,
     togglePause,
     toggleSound,
@@ -243,11 +248,7 @@ const App = () => {
     setGameStarted(true);
   };
 
-  const handleCanvasClick = () => {
-    if (gameState.drawGameOver) {
-      handleRestart();
-    }
-  };
+
 
   if (!gameStarted) {
     return (
